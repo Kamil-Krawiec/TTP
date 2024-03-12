@@ -3,6 +3,7 @@ package TTP.Algorithms;
 import Helpers.Node;
 import TTP.TTPInstance;
 import TTP.TTPSolution;
+import java.util.Random;
 
 import java.util.*;
 
@@ -16,20 +17,19 @@ public class GreedyAlgorithm extends EAlgorithm {
     @Override
     public void initialize(int populationSize) {
         TTPSolution solution = new TTPSolution();
-        solution.setItems(new ArrayList<>(Collections.nCopies(instance.getDimension(),0)));
+        solution.setItems(new ArrayList<>(Collections.nCopies(instance.getDimension(),-1)));
         solution.setRoute(createGreedyRoute());
         stealTheMostValuableItems(solution);
         solution.setFitness(fitness(solution));
         population.add(solution);
-
     }
 
     private List<Integer> createGreedyRoute() {
         Set<Integer> visitedNodes = new HashSet<>(); // Keeps track of visited nodes
         List<Integer> route = new ArrayList<>(); // The greedy route to be built
 
-
-        int currentNode = instance.getNodes().keySet().iterator().next();
+        int randomStartingNode = new Random().nextInt(instance.getDimension());
+        int currentNode = instance.getNodes().get(randomStartingNode).getIndex();
 
         route.add(currentNode);
         visitedNodes.add(currentNode);
@@ -58,7 +58,7 @@ public class GreedyAlgorithm extends EAlgorithm {
         return route;
     }
 
-    private void stealTheMostValuableItems(TTPSolution solution) {
+    protected void stealTheMostValuableItems(TTPSolution solution) {
         for (int i = 0; i < instance.getItems().size(); i++) {
             for (Node n : instance.getNodes().values()) {
 
@@ -81,7 +81,7 @@ public class GreedyAlgorithm extends EAlgorithm {
 
                 solution.updateWeightOfItems(instance.getItems().get(mostValuableItemIndex).getWeight());
                 if(validateSolution(solution)){
-                    solution.getItems().add(mostValuableItemIndex, n.getIndex());
+                    solution.getItems().set(n.getIndex(),mostValuableItemIndex);
                 }else{
                     break;
                 }

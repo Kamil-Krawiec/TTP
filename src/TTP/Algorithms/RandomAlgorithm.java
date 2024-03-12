@@ -26,21 +26,20 @@ public class RandomAlgorithm extends EAlgorithm{
             List<Integer> route = new ArrayList<>(instance.getNodes().keySet());
             Collections.shuffle(route);
             solution.setRoute(route);
-            solution.setItems(new ArrayList<>(Collections.nCopies(instance.getDimension(),0)));
+            solution.setItems(new ArrayList<>(Collections.nCopies(instance.getDimension(),-1)));
 
 
 
             for(Integer j: instance.getItems().keySet()){
+                if(!validateSolution(solution)){
+                    break;
+                }
                 List<Integer> givenList = instance.getNodes().get(j).getItems();
 
                 for(Integer k: givenList){
-                    if(random.nextBoolean() ){
-                        solution.updateWeightOfItems(instance.getItems().get(k).getWeight());
-                        if(validateSolution(solution)){
-                            solution.getItems().add(j,k);
-                        }else{
-                            break;
-                        }
+                    solution.updateWeightOfItems(instance.getItems().get(k).getWeight());
+                    if(random.nextBoolean() && validateSolution(solution)){
+                        solution.getItems().set(j,k);
                     }
                 }
             }

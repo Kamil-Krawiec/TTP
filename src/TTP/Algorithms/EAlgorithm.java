@@ -18,6 +18,10 @@ public abstract class EAlgorithm {
     protected TTPSolution bestSolution;
     protected Set<TTPSolution> population = new TreeSet<>(Comparator.comparingDouble(TTPSolution::getFitness).reversed());
 
+    public TTPSolution getBestSolution() {
+        return population.stream().findFirst().orElse(null);
+    }
+
 
     public EAlgorithm(TTPInstance instance) {
         this.instance = instance;
@@ -28,7 +32,9 @@ public abstract class EAlgorithm {
 
     // Method to execute the algorithm and give n first solutions for a population in generation
     public void execute() {
-        bestSolution = population.stream().findFirst().orElse(null);
+        for (TTPSolution solution : population) {
+            solution.setFitness(fitness(solution));
+        }
     }
 
     // g(y) - sum of items stolen
@@ -44,9 +50,9 @@ public abstract class EAlgorithm {
                     .getDistanceTo(instance.getNodes().get(next));
 
             solution.setTotalDistance(solution.getTotalDistance() + nextDistance);
-
-            if(solution.getItems().get(i)!=0){
-                Item currItem = instance.getItems().get(i);
+            int stolenItemIndex = solution.getItems().get(i);
+            if(stolenItemIndex!=-1){
+                Item currItem = instance.getItems().get(stolenItemIndex);
                 solution.updateTotalWeight(currItem.getWeight());
                 solution.setTotalProfit(solution.getTotalProfit() + currItem.getProfit());
             }
@@ -74,8 +80,8 @@ public abstract class EAlgorithm {
         return distance / currentVelocity;
     }
 
-    protected boolean validateSolution(TTPSolution solution) {
-        return solution.getWeightOfItems() < instance.getCapacityOfKnapsack();
+    public boolean validateSolution(TTPSolution solution) {
+        return solution.getWeightOfItems()<instance.getCapacityOfKnapsack();
     }
 
 
