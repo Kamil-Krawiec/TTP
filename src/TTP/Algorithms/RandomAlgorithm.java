@@ -10,8 +10,8 @@ import java.util.Random;
 
 public class RandomAlgorithm extends EAlgorithm{
 
-    public RandomAlgorithm(TTPInstance instance, int startingNode) {
-        super(instance, startingNode);
+    public RandomAlgorithm(TTPInstance instance) {
+        super(instance);
     }
 
 
@@ -25,24 +25,19 @@ public class RandomAlgorithm extends EAlgorithm{
             TTPSolution solution = new TTPSolution();
             List<Integer> route = new ArrayList<>(instance.getNodes().keySet());
             Collections.shuffle(route);
-            Collections.swap(route, 0, route.indexOf(startingNode));
             solution.setRoute(route);
+            solution.setItems(new ArrayList<>(Collections.nCopies(instance.getDimension(),0)));
 
 
-
-            for(int n = 0; n < instance.getNodes().size(); n++){
-                solution.getItems().add(new ArrayList<>());
-            }
 
             for(Integer j: instance.getItems().keySet()){
                 List<Integer> givenList = instance.getNodes().get(j).getItems();
-
 
                 for(Integer k: givenList){
                     if(random.nextBoolean() ){
                         solution.updateWeightOfItems(instance.getItems().get(k).getWeight());
                         if(validateSolution(solution)){
-                            solution.getItems().get(j).add(k);
+                            solution.getItems().add(j,k);
                         }else{
                             break;
                         }

@@ -13,7 +13,7 @@ import java.util.Objects;
 @Builder
 public class TTPSolution {
     private List<Integer> route;
-    private List<List<Integer>>  items;
+    private List<Integer>  items;
     private double totalProfit;
     private double totalWeight;
     private double totalTravelingTime;
@@ -22,7 +22,7 @@ public class TTPSolution {
     private double weightOfItems;
 
     public TTPSolution(List<Integer> route,
-                       List<List<Integer>> items,
+                       List<Integer> items,
                        double totalProfit,
                        double totalWeight,
                        double totalTravelingTime,
@@ -44,7 +44,7 @@ public class TTPSolution {
         items = new ArrayList<>();
     }
 
-    public TTPSolution(List<Integer> route, List<List<Integer>> items) {
+    public TTPSolution(List<Integer> route, List<Integer> items) {
         this.route = route;
         this.items = items;
     }

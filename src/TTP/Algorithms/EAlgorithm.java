@@ -6,7 +6,9 @@ import TTP.TTPSolution;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Getter
 @Setter
@@ -14,20 +16,18 @@ public abstract class EAlgorithm {
 
     protected TTPInstance instance;
     protected TTPSolution bestSolution;
-    protected int startingNode;
     protected Set<TTPSolution> population = new TreeSet<>(Comparator.comparingDouble(TTPSolution::getFitness).reversed());
 
 
-    public EAlgorithm(TTPInstance instance,int startingNode) {
+    public EAlgorithm(TTPInstance instance) {
         this.instance = instance;
-        this.startingNode = startingNode;
     }
 
     // Method to initialize the algorithm
     public abstract void initialize(int populationSize);
 
     // Method to execute the algorithm and give n first solutions for a population in generation
-    public void execute(){
+    public void execute() {
         bestSolution = population.stream().findFirst().orElse(null);
     }
 
@@ -38,20 +38,17 @@ public abstract class EAlgorithm {
     protected double fitness(TTPSolution solution) {
         for (int i = 0; i < instance.getDimension(); i++) {
             int curr = solution.getRoute().get(i);
-            int next = solution.getRoute().get((i+1) % instance.getDimension());
+            int next = solution.getRoute().get((i + 1) % instance.getDimension());
             double nextDistance = instance.getNodes()
                     .get(curr)
                     .getDistanceTo(instance.getNodes().get(next));
+
             solution.setTotalDistance(solution.getTotalDistance() + nextDistance);
 
-            List<Integer> items = (curr >= 0 && curr < solution.getItems().size()) ? solution.getItems().get(curr) : null;
-
-            if (items != null) {
-                for (Integer item : items) {
-                    Item currItem = instance.getItems().get(item);
-                    solution.updateTotalWeight(currItem.getWeight());
-                    solution.setTotalProfit(solution.getTotalProfit() + currItem.getProfit());
-                }
+            if(solution.getItems().get(i)!=0){
+                Item currItem = instance.getItems().get(i);
+                solution.updateTotalWeight(currItem.getWeight());
+                solution.setTotalProfit(solution.getTotalProfit() + currItem.getProfit());
             }
 
             solution.setTotalTravelingTime(solution.getTotalTravelingTime() +
@@ -78,7 +75,7 @@ public abstract class EAlgorithm {
     }
 
     protected boolean validateSolution(TTPSolution solution) {
-        return solution.getWeightOfItems()<instance.getCapacityOfKnapsack();
+        return solution.getWeightOfItems() < instance.getCapacityOfKnapsack();
     }
 
 

@@ -11,16 +11,14 @@ public class Main {
         TTPInstance berlin = new TTPInstance();
         berlin = berlin.loadFromFile("/Users/kamil/IdeaProjects/Optimization Methods/Data/berlin52-ttp/berlin52_n51_bounded-strongly-corr_01.ttp");
 
-        int startingNode = 10;
-
-        EAlgorithm greedyAlgo = new GreedyAlgorithm(berlin,startingNode);
+        EAlgorithm greedyAlgo = new GreedyAlgorithm(berlin);
         Optimizer optimizerGreedy = new TTPOptimizer(greedyAlgo);
         optimizerGreedy.initialize();
         optimizerGreedy.evaluate();
         optimizerGreedy.optimize();
 
 
-        EAlgorithm radom = new RandomAlgorithm(berlin,startingNode);
+        EAlgorithm radom = new RandomAlgorithm(berlin);
         Optimizer optimizerRandom = new TTPOptimizer(radom);
         optimizerRandom.initialize();
         optimizerRandom.evaluate();

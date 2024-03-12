@@ -4,26 +4,19 @@ import Helpers.Node;
 import TTP.TTPInstance;
 import TTP.TTPSolution;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GreedyAlgorithm extends EAlgorithm {
 
 
-    public GreedyAlgorithm(TTPInstance instance, int startingNode) {
-        super(instance, startingNode);
+    public GreedyAlgorithm(TTPInstance instance) {
+        super(instance);
     }
 
     @Override
     public void initialize(int populationSize) {
         TTPSolution solution = new TTPSolution();
-
-        for (int n = 0; n < instance.getNodes().size(); n++) {
-            solution.getItems().add(new ArrayList<>());
-        }
-
+        solution.setItems(new ArrayList<>(Collections.nCopies(instance.getDimension(),0)));
         solution.setRoute(createGreedyRoute());
         stealTheMostValuableItems(solution);
         solution.setFitness(fitness(solution));
@@ -36,7 +29,8 @@ public class GreedyAlgorithm extends EAlgorithm {
         List<Integer> route = new ArrayList<>(); // The greedy route to be built
 
 
-        int currentNode = startingNode;
+        int currentNode = instance.getNodes().keySet().iterator().next();
+
         route.add(currentNode);
         visitedNodes.add(currentNode);
 
@@ -67,6 +61,7 @@ public class GreedyAlgorithm extends EAlgorithm {
     private void stealTheMostValuableItems(TTPSolution solution) {
         for (int i = 0; i < instance.getItems().size(); i++) {
             for (Node n : instance.getNodes().values()) {
+
                 List<Integer> items = n.getItems();
 
                 if (items.isEmpty()) {
@@ -86,7 +81,7 @@ public class GreedyAlgorithm extends EAlgorithm {
 
                 solution.updateWeightOfItems(instance.getItems().get(mostValuableItemIndex).getWeight());
                 if(validateSolution(solution)){
-                    solution.getItems().get(n.getIndex()).add(mostValuableItemIndex);
+                    solution.getItems().add(mostValuableItemIndex, n.getIndex());
                 }else{
                     break;
                 }
