@@ -6,9 +6,13 @@ import TTP.TTPSolution;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Random;
+
 
 @Getter @Setter
 public abstract class Optimizer {
+    protected Random random = new Random();
     protected EAlgorithm algorithm;
     protected final int POPULATION_SIZE = 100;
     protected final int NUM_GENERATIONS = 100;
@@ -36,7 +40,7 @@ public abstract class Optimizer {
         return null;
     }
 
-    protected TTPSolution select(TTPSolution[] population) {
+    protected TTPSolution select(List<TTPSolution> population) {
         return null;
     }
 

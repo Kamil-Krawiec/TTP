@@ -12,7 +12,6 @@ public class Item {
     private int profit;
     private int weight;
     private int assignedNodeNumber;
-    private boolean isStolen;
 
     public Item() {
     }
@@ -22,22 +21,17 @@ public class Item {
         this.profit = other.profit;
         this.weight = other.weight;
         this.assignedNodeNumber = other.assignedNodeNumber;
-        this.isStolen = other.isStolen;
     }
 
-    public Item(int index, int profit, int weight, int assignedNodeNumber, boolean isStolen) {
+    public Item(int index, int profit, int weight, int assignedNodeNumber) {
         this.index = index;
         this.profit = profit;
         this.weight = weight;
         this.assignedNodeNumber = assignedNodeNumber;
-        this.isStolen = isStolen;
     }
 
     public int hashCode(){
-        return Objects.hash(index, profit, weight, assignedNodeNumber, isStolen);
+        return Objects.hash(index, profit, weight, assignedNodeNumber);
     }
 
-    public void stoleItem(){
-        this.isStolen = true;
-    }
 }

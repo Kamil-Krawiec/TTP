@@ -28,7 +28,7 @@ public class GreedyAlgorithm extends EAlgorithm {
         Set<Integer> visitedNodes = new HashSet<>(); // Keeps track of visited nodes
         List<Integer> route = new ArrayList<>(); // The greedy route to be built
 
-        int randomStartingNode = new Random().nextInt(instance.getDimension());
+        int randomStartingNode = new Random().nextInt(0,instance.getDimension());
         int currentNode = instance.getNodes().get(randomStartingNode).getIndex();
 
         route.add(currentNode);

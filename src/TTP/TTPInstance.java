@@ -118,7 +118,6 @@ public class TTPInstance {
                                 .profit(Integer.parseInt(itemInfo[1]))
                                 .weight(Integer.parseInt(itemInfo[2]))
                                 .assignedNodeNumber(Integer.parseInt(itemInfo[3]))
-                                .isStolen(false)
                                 .build();
                         items.put(item.getIndex(), item);
                         this.nodes.get(item.getAssignedNodeNumber()).addItem(item.getIndex());
@@ -126,7 +125,6 @@ public class TTPInstance {
                     ttpInstanceBuilder.items(items);
                     break;
                 default:
-                    // Ignore
                     break;
             }
         }

@@ -20,6 +20,7 @@ public class TTPSolution {
     private double fitness;
     private double totalDistance;
     private double weightOfItems;
+    private boolean isChanged;
 
     public TTPSolution(List<Integer> route,
                        List<Integer> items,
@@ -28,7 +29,8 @@ public class TTPSolution {
                        double totalTravelingTime,
                        double fitness,
                        double totalDistance,
-                       double weightOfItems) {
+                       double weightOfItems,
+                       boolean isChanged) {
         this.route = route;
         this.items = items;
         this.totalProfit = totalProfit;
@@ -37,16 +39,19 @@ public class TTPSolution {
         this.fitness = fitness;
         this.totalDistance = totalDistance;
         this.weightOfItems = weightOfItems;
+        this.isChanged = true;
     }
 
     public TTPSolution() {
         route = new ArrayList<>();
         items = new ArrayList<>();
+        isChanged = true;
     }
 
     public TTPSolution(List<Integer> route, List<Integer> items) {
         this.route = route;
         this.items = items;
+        isChanged = true;
     }
 
     public void updateTotalWeight(double weight) {
@@ -57,6 +62,10 @@ public class TTPSolution {
         weightOfItems += weight;
     }
 
+    public void setFitness(double fitness){
+        isChanged = false;
+        this.fitness = fitness;
+    }
 
     @Override
     public int hashCode() {

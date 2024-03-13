@@ -14,19 +14,19 @@ public class TTPOptimizer extends Optimizer {
     @Override
     public void optimize() {
         if( bestSolution == null){
-            bestSolution = getAlgorithm().getBestSolution();
+            bestSolution = algorithm.getBestSolution();
         }
-        else if(getAlgorithm().getBestSolution().getFitness() > bestSolution.getFitness()){
+        else if(algorithm.getBestSolution().getFitness() > bestSolution.getFitness()){
             bestSolution = getAlgorithm().getBestSolution();
         }
     }
 
     public void evaluate(){
-        getAlgorithm().execute();
+        algorithm.execute();
     }
 
     @Override
     public void initialize() {
-        getAlgorithm().initialize(getPOPULATION_SIZE());
+        algorithm.initialize(POPULATION_SIZE);
     }
 }

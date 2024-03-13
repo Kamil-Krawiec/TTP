@@ -18,7 +18,6 @@ public class RandomAlgorithm extends EAlgorithm{
 
     @Override
     public void initialize(int populationSize) {
-        Random random = new Random();
 
         for(int i = 0; i < populationSize; i++){
 

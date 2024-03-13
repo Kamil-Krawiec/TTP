@@ -6,17 +6,16 @@ import TTP.TTPSolution;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 @Getter
 @Setter
 public abstract class EAlgorithm {
 
+    protected Random random = new Random();
     protected TTPInstance instance;
     protected TTPSolution bestSolution;
-    protected Set<TTPSolution> population = new TreeSet<>(Comparator.comparingDouble(TTPSolution::getFitness).reversed());
+    protected List<TTPSolution> population = new ArrayList<>();
 
     public TTPSolution getBestSolution() {
         return population.stream().findFirst().orElse(null);
@@ -30,11 +29,8 @@ public abstract class EAlgorithm {
     // Method to initialize the algorithm
     public abstract void initialize(int populationSize);
 
-    // Method to execute the algorithm and give n first solutions for a population in generation
     public void execute() {
-        for (TTPSolution solution : population) {
-            solution.setFitness(fitness(solution));
-        }
+        population.stream().filter(TTPSolution::isChanged).forEach(solution-> solution.setFitness(fitness(solution)));
     }
 
     // g(y) - sum of items stolen

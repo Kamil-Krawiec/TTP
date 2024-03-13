@@ -37,7 +37,7 @@ public class ExtendedGreedyAlgo extends GreedyAlgorithm {
         }
     }
 
-    private List<Integer> createGreedyRoute(Integer startNode) {
+    protected List<Integer> createGreedyRoute(Integer startNode) {
         Set<Integer> visitedNodes = new HashSet<>();
         List<Integer> route = new ArrayList<>();
         int currentNode = startNode;
@@ -50,6 +50,9 @@ public class ExtendedGreedyAlgo extends GreedyAlgorithm {
 
             for (Integer nextNode : instance.getNodes().keySet()) {
                 if (!visitedNodes.contains(nextNode)) {
+                    if(instance.getNodes().get(nextNode)==null || instance.getNodes().get(currentNode) == null){
+                        System.out.println("ooo");
+                    }
                     double distance = instance.getNodes().get(currentNode).getDistanceTo(instance.getNodes().get(nextNode));
                     if (distance < closestDistance) {
                         closestDistance = distance;

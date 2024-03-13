@@ -7,7 +7,6 @@ import java.util.*;
 
 public class RealOptimizer extends Optimizer {
 
-    Random random = new Random();
 
     public RealOptimizer(EAlgorithm algorithm) {
         super(algorithm);
@@ -15,10 +14,11 @@ public class RealOptimizer extends Optimizer {
 
     @Override
     protected TTPSolution mutate(TTPSolution solution) {
+        int minKeyNode = algorithm.getInstance().getNodes().keySet().stream().findFirst().orElse(0);
 
 
-        int firstIndex = random.nextInt(solution.getRoute().size() - 1);
-        int secondIndex = random.nextInt(solution.getRoute().size() - 1);
+        int firstIndex = random.nextInt(minKeyNode,solution.getRoute().size() - 1);
+        int secondIndex = random.nextInt(minKeyNode,solution.getRoute().size() - 1);
 
         Collections.swap(solution.getRoute(), firstIndex, secondIndex);
         Collections.swap(solution.getItems(), firstIndex, secondIndex);
@@ -98,7 +98,7 @@ public class RealOptimizer extends Optimizer {
             if (parent2Index >= routeSize) break; // Safety check
         }
 
-        TTPSolution offspring = new TTPSolution(childRoute,new ArrayList<>(Collections.nCopies(childRoute.size(),-1)));
+        TTPSolution offspring = new TTPSolution(childRoute, new ArrayList<>(Collections.nCopies(childRoute.size(), -1)));
         handleItems(solution1, solution2, offspring);
 
         return offspring;
@@ -111,24 +111,24 @@ public class RealOptimizer extends Optimizer {
 
 
         // Iterate over the child route to decide on items
-        for (int i=0;i<parent1.getRoute().size();i++) {
+        for (int i = 0; i < parent1.getRoute().size(); i++) {
             int itemParent1 = parent1Items.get(i);
             int itemParent2 = parent2Items.get(i);
             double itemsWeight = 0;
 
-            if(itemParent1!=-1){
+            if (itemParent1 != -1) {
                 itemsWeight = getAlgorithm().getInstance().getItems().get(itemParent1).getWeight();
                 offspring.updateWeightOfItems(itemsWeight);
                 if (getAlgorithm().validateSolution(offspring)) {
-                    offspring.getItems().set(i,itemParent1);
+                    offspring.getItems().set(i, itemParent1);
                 } else {
                     offspring.updateWeightOfItems(-itemsWeight);
                 }
-            }else if(itemParent2!=-1){
+            } else if (itemParent2 != -1) {
                 itemsWeight = getAlgorithm().getInstance().getItems().get(itemParent2).getWeight();
                 offspring.updateWeightOfItems(itemsWeight);
                 if (getAlgorithm().validateSolution(offspring)) {
-                    offspring.getItems().set(i,itemParent2);
+                    offspring.getItems().set(i, itemParent2);
                 } else {
                     offspring.updateWeightOfItems(-itemsWeight);
                 }
@@ -138,24 +138,65 @@ public class RealOptimizer extends Optimizer {
     }
 
 
-
     @Override
-    protected TTPSolution select(TTPSolution[] population) {
-        return null;
+    protected TTPSolution select(List<TTPSolution> population) {
+        List<TTPSolution> tournament = new ArrayList<>();
+
+        // Select k individuals at random to form a tournament
+        for (int i = 0; i < TOURNAMENT_SIZE; i++) {
+            int randomIndex = random.nextInt(population.size());
+            tournament.add(population.get(randomIndex));
+        }
+
+        // Find and return the best solution in the tournament based on fitness
+        return tournament.stream()
+                .max(Comparator.comparingDouble(TTPSolution::getFitness))
+                .orElse(null); // Returns null if, for some reason, no solution was selected; consider a more robust error handling here
     }
+
 
     @Override
     public void optimize() {
+
+        for (int i = 0; i < NUM_GENERATIONS; i++) {
+            List<TTPSolution> newPopulation = new ArrayList<>();
+            List<TTPSolution> population = algorithm.getPopulation();
+
+            while (newPopulation.size() < population.size()) {
+                TTPSolution parent1 = select(population);
+                TTPSolution parent2 = select(population);
+                TTPSolution offspring;
+
+                if (random.nextFloat(0, 1) < CROSSOVER_PROBABILITY) {
+                    offspring = crossover(parent1, parent2);
+                    offspring.setChanged(true);
+                } else {
+                    offspring = parent1;
+                    offspring.setChanged(false);
+                }
+
+                if (random.nextFloat(0, 1) < MUTATION_PROBABILITY) {
+                    mutate(offspring);
+                    offspring.setChanged(true);
+                }
+                newPopulation.add(offspring);
+            }
+
+            algorithm.execute();
+            population.sort(Comparator.comparingDouble(TTPSolution::getFitness).reversed());
+            bestSolution = bestSolution == null || population.get(0).getFitness() > bestSolution.getFitness() ?
+                    population.get(0) : bestSolution;
+        }
 
     }
 
     @Override
     public void initialize() {
-
+        algorithm.initialize(POPULATION_SIZE);
     }
 
     @Override
     public void evaluate() {
-        getAlgorithm().execute();
+        algorithm.execute();
     }
 }
