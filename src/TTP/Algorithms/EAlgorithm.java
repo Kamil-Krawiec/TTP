@@ -33,11 +33,16 @@ public abstract class EAlgorithm {
         population.stream().filter(TTPSolution::isChanged).forEach(solution-> solution.setFitness(fitness(solution)));
     }
 
+    public void execute(TTPSolution solution) {
+        solution.setFitness(fitness(solution));
+    }
+
     // g(y) - sum of items stolen
     // f(x,y) - total traveling time
     // G(x,y) = g(y) - f(x,y)
     //G(x,y)
     protected double fitness(TTPSolution solution) {
+        solution.setTotalWeight(0);
         for (int i = 0; i < instance.getDimension(); i++) {
             int curr = solution.getRoute().get(i);
             int next = solution.getRoute().get((i + 1) % instance.getDimension());
@@ -77,7 +82,7 @@ public abstract class EAlgorithm {
     }
 
     public boolean validateSolution(TTPSolution solution) {
-        return solution.getWeightOfItems()<=instance.getCapacityOfKnapsack();
+        return solution.getWeightOfItems()<=instance.getCapacityOfKnapsack() &&solution.getTotalWeight()<=instance.getCapacityOfKnapsack();
     }
 
 

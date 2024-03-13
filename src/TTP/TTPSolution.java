@@ -72,6 +72,18 @@ public class TTPSolution {
         return Objects.hash(route, items);
     }
 
+    public TTPSolution(TTPSolution other) {
+        this.route = new ArrayList<>(other.route);
+        this.items = new ArrayList<>(other.items);
+        this.totalProfit = other.totalProfit;
+        this.totalWeight = other.totalWeight;
+        this.totalTravelingTime = other.totalTravelingTime;
+        this.fitness = other.fitness;
+        this.totalDistance = other.totalDistance;
+        this.weightOfItems = other.weightOfItems;
+        this.isChanged = other.isChanged;
+    }
+
     @Override
     public String toString() {
         return "TTPSolution{" +

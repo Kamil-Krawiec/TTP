@@ -10,8 +10,8 @@ public class Main {
     public static void main(String[] args) throws Throwable {
 
         TTPInstance berlin = new TTPInstance();
-        String fileName = "berlin52_n51_bounded-strongly-corr_01.ttp";
-        berlin = berlin.loadFromFile("/Users/kamil/IdeaProjects/Optimization Methods/data/berlin52-ttp/berlin52_n51_bounded-strongly-corr_01.ttp");
+        String fileName = "fnl4461-ttp/fnl4461_n4460_bounded-strongly-corr_02.ttp";
+        berlin = berlin.loadFromFile("/Users/kamil/IdeaProjects/Optimization Methods/data/"+fileName);
 
         EAlgorithm greedyAlgo = new GreedyAlgorithm(berlin);
         Optimizer optimizerGreedy = new TTPOptimizer(greedyAlgo);
