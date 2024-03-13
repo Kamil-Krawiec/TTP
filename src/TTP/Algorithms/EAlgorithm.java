@@ -77,7 +77,7 @@ public abstract class EAlgorithm {
     }
 
     public boolean validateSolution(TTPSolution solution) {
-        return solution.getWeightOfItems()<instance.getCapacityOfKnapsack();
+        return solution.getWeightOfItems()<=instance.getCapacityOfKnapsack();
     }
 
 

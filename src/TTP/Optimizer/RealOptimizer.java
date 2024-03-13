@@ -1,6 +1,7 @@
 package TTP.Optimizer;
 
 import TTP.Algorithms.EAlgorithm;
+import TTP.TTPInstance;
 import TTP.TTPSolution;
 
 import java.util.*;
@@ -17,8 +18,8 @@ public class RealOptimizer extends Optimizer {
         int minKeyNode = algorithm.getInstance().getNodes().keySet().stream().findFirst().orElse(0);
 
 
-        int firstIndex = random.nextInt(minKeyNode,solution.getRoute().size() - 1);
-        int secondIndex = random.nextInt(minKeyNode,solution.getRoute().size() - 1);
+        int firstIndex = random.nextInt(minKeyNode, solution.getRoute().size() - 1);
+        int secondIndex = random.nextInt(minKeyNode, solution.getRoute().size() - 1);
 
         Collections.swap(solution.getRoute(), firstIndex, secondIndex);
         Collections.swap(solution.getItems(), firstIndex, secondIndex);
@@ -28,31 +29,47 @@ public class RealOptimizer extends Optimizer {
 //            if there is an item in firstIndexNode, we throw it.
 //            When there is no item picked in this node, and we can pick it up, we pick it up.
 //            If there is more than 1 item in node, and we picked one before, we change it if we can to first found.
-            List<Integer> items = getAlgorithm().getInstance().getNodes().get(firstIndex).getItems();
-            int currentItem = solution.getItems().get(firstIndex);
-            double itemsWeight = getAlgorithm().getInstance().getItems().get(firstIndex).getWeight();
+            TTPInstance instance = algorithm.getInstance();
+            int currentNode = solution.getRoute().get(firstIndex);
+            if (algorithm.validateSolution(solution) && instance.getItems().containsKey(currentNode)) {
+                List<Integer> items = instance.getNodes().get(currentNode).getItems();
+                int currentItem = solution.getItems().get(currentNode);
 
+                if (!items.isEmpty()) {
+                    double itemsWeight;
+                    if (currentItem == -1) {
+                        itemsWeight = instance.getItems().get(items.get(0)).getWeight();
+                        solution.updateWeightOfItems(itemsWeight);
+                        if (algorithm.validateSolution(solution)) {
+                            solution.getItems().set(firstIndex, items.get(0));
+                        } else {
+                            solution.updateWeightOfItems(-itemsWeight);
+                        }
+                    } else if (items.size() > 1) {
+                        itemsWeight = instance.getItems().get(currentItem).getWeight();
 
-            if (currentItem == -1 && items.size() == 1) {
-                solution.updateWeightOfItems(itemsWeight);
-                if (getAlgorithm().validateSolution(solution)) {
-                    solution.getItems().set(firstIndex, items.get(0));
-                } else {
-                    solution.updateWeightOfItems(-itemsWeight);
+                        solution.updateWeightOfItems(-itemsWeight);
+
+                        int newIndex = items.stream()
+                                .filter(x -> x != currentItem)
+                                .findFirst().orElse(-1);
+                        itemsWeight = instance.getItems().get(newIndex).getWeight();
+
+                        solution.updateWeightOfItems(newIndex);
+
+                        if (algorithm.validateSolution(solution)) {
+                            solution.getItems().set(currentNode, newIndex);
+                        } else {
+                            solution.updateWeightOfItems(-itemsWeight);
+                        }
+                    } else {
+                        itemsWeight = instance.getItems().get(currentItem).getWeight();
+                        solution.updateWeightOfItems(-itemsWeight);
+                        solution.getItems().set(firstIndex, -1);
+                    }
                 }
-            } else if (items.size() > 1 && currentItem != -1) {
-                solution.updateWeightOfItems(-itemsWeight);
-                if (getAlgorithm().validateSolution(solution)) {
-                    solution.getItems().set(firstIndex, items.stream()
-                            .filter(x -> x != currentItem)
-                            .findFirst().orElse(-1));
-                } else {
-                    solution.updateWeightOfItems(itemsWeight);
-                }
-            } else if (currentItem != -1) {
-                solution.updateWeightOfItems(-itemsWeight);
-                solution.getItems().set(firstIndex, -1);
             }
+
         }
 
         return solution;
@@ -105,38 +122,31 @@ public class RealOptimizer extends Optimizer {
     }
 
     private void handleItems(TTPSolution parent1, TTPSolution parent2, TTPSolution offspring) {
+        copyItemsFromParent(parent1, offspring);
+        copyItemsFromParent(parent2, offspring);
+    }
 
-        List<Integer> parent1Items = parent1.getItems();
-        List<Integer> parent2Items = parent2.getItems();
 
+    private void copyItemsFromParent(TTPSolution parent, TTPSolution offspring) {
+        List<Integer> parentItems = parent.getItems();
 
         // Iterate over the child route to decide on items
-        for (int i = 0; i < parent1.getRoute().size(); i++) {
-            int itemParent1 = parent1Items.get(i);
-            int itemParent2 = parent2Items.get(i);
+        for (Integer node : parent.getRoute()) {
+            int currentNode = parent.getRoute().indexOf(node);
+            int itemParent = parentItems.get(currentNode);
             double itemsWeight = 0;
 
-            if (itemParent1 != -1) {
-                itemsWeight = getAlgorithm().getInstance().getItems().get(itemParent1).getWeight();
+            if (itemParent != -1 && offspring.getItems().get(offspring.getRoute().indexOf(node))==-1) {
+                itemsWeight = algorithm.getInstance().getItems().get(itemParent).getWeight();
                 offspring.updateWeightOfItems(itemsWeight);
                 if (getAlgorithm().validateSolution(offspring)) {
-                    offspring.getItems().set(i, itemParent1);
-                } else {
-                    offspring.updateWeightOfItems(-itemsWeight);
-                }
-            } else if (itemParent2 != -1) {
-                itemsWeight = getAlgorithm().getInstance().getItems().get(itemParent2).getWeight();
-                offspring.updateWeightOfItems(itemsWeight);
-                if (getAlgorithm().validateSolution(offspring)) {
-                    offspring.getItems().set(i, itemParent2);
+                    offspring.getItems().set(offspring.getRoute().indexOf(node), itemParent);
                 } else {
                     offspring.updateWeightOfItems(-itemsWeight);
                 }
             }
         }
-
     }
-
 
     @Override
     protected TTPSolution select(List<TTPSolution> population) {
@@ -181,13 +191,16 @@ public class RealOptimizer extends Optimizer {
                 }
                 newPopulation.add(offspring);
             }
-
+            algorithm.setPopulation(newPopulation);
             algorithm.execute();
+            if (!population.stream().filter(x -> x.getTotalWeight() > algorithm.getInstance().getCapacityOfKnapsack()).toList().isEmpty()) {
+                System.out.println("Mutation or crossover caused the solution to be invalid");
+            }
             population.sort(Comparator.comparingDouble(TTPSolution::getFitness).reversed());
             bestSolution = bestSolution == null || population.get(0).getFitness() > bestSolution.getFitness() ?
                     population.get(0) : bestSolution;
         }
-
+//        newPopulation.stream().filter(TTPSolution::isChanged).filter(x-> x.getTotalWeight()>algorithm.instance.getCapacityOfKnapsack()).toList()
     }
 
     @Override

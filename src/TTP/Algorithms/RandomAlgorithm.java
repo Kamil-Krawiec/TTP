@@ -1,4 +1,5 @@
 package TTP.Algorithms;
+import Helpers.Node;
 import TTP.TTPInstance;
 import TTP.TTPSolution;
 
@@ -27,19 +28,20 @@ public class RandomAlgorithm extends EAlgorithm{
             solution.setRoute(route);
             solution.setItems(new ArrayList<>(Collections.nCopies(instance.getDimension(),-1)));
 
-
-
-            for(Integer j: instance.getItems().keySet()){
-                if(!validateSolution(solution)){
+            for(Integer node: solution.getRoute()){
+                if(!validateSolution(solution) || !instance.getItems().containsKey(node)){
                     break;
                 }
-                List<Integer> givenList = instance.getNodes().get(j).getItems();
+                List<Integer> itemsListForNode= instance.getNodes().get(node).getItems() ;
 
-                for(Integer k: givenList){
-                    solution.updateWeightOfItems(instance.getItems().get(k).getWeight());
+                for(Integer k: itemsListForNode){
+                    double itemsWeight = instance.getItems().get(k).getWeight();
+                    solution.updateWeightOfItems(itemsWeight);
                     if(random.nextBoolean() && validateSolution(solution)){
-                        solution.getItems().set(j,k);
+                        solution.getItems().set(route.indexOf(node),k);
+                        break;
                     }
+                    solution.updateWeightOfItems(-itemsWeight);
                 }
             }
             solution.setFitness(fitness(solution));
