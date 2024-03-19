@@ -54,6 +54,7 @@ public class TabuAlgorithm extends ExtendedGreedyAlgo{
 
             currentSolution = neighborSolution;
             updateTabuListAfterIteration();
+//            System.out.println("Iteration: " + i + " Best fitness: " + bestSolution.getFitness() + " Current fitness: " + currentSolution.getFitness());
         }
 
         setBestSolution(bestSolution);
@@ -61,7 +62,7 @@ public class TabuAlgorithm extends ExtendedGreedyAlgo{
 
     private void updateTabuListAfterIteration() {
         for (int i = 0; i < instance.getDimension(); i++) {
-            for (int j = 0; j < instance.getDimension(); j++) {
+            for (int j = i+1; j < instance.getDimension(); j++) {
                 if (tabuList[i][j] > 0) {
                     tabuList[i][j]--;
                 }

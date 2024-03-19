@@ -55,6 +55,9 @@ public class OptimizationRunner {
             // In this case population size is number of iterations
             algorithm.initialize(100);
             algorithm.execute();
+            TTPSolution bestSolution = algorithm.getBestSolution();
+            CSVUtil.saveSolutionToCSV(bestSolution, solutionDir + algorithmAnalysisFileName,
+                    algorithmName, instanceName);
         }
         else {
             Optimizer optimizer = new TTPOptimizer(algorithm);
