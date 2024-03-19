@@ -34,14 +34,18 @@ public class OptimizationRunner {
                 fileName, "OX", "SWAP", "0", "0");
         executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary CX INVERSE",
                 fileName, "CX", "INVERSE", "1", "1");
+        executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary CX INVERSE",
+                fileName, "OX", "INVERSE", "0", "1");
+        executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary CX INVERSE",
+                fileName, "CX", "SWAP", "1", "0");
         executeAndSaveOptimization(new TabuAlgorithm(ttpInstance), "Tabu", fileName);
     }
 
     private static void executeAndSaveOptimization(EAlgorithm algorithm, String algorithmName, String instanceName, String... extraArgs) throws Throwable {
 
         if (algorithmName.contains("Evolutionary")) {
-            String swap = algorithmName.split(" ")[1];
-            String cross = algorithmName.split(" ")[2];
+            String cross = algorithmName.split(" ")[1];
+            String swap = algorithmName.split(" ")[2];
             RealOptimizer realOptimizer = new RealOptimizer(algorithm, Boolean.getBoolean(extraArgs[2]), Boolean.getBoolean(extraArgs[3]));
             realOptimizer.initialize();
             realOptimizer.evaluate();
