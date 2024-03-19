@@ -50,9 +50,6 @@ public class ExtendedGreedyAlgo extends GreedyAlgorithm {
 
             for (Integer nextNode : instance.getNodes().keySet()) {
                 if (!visitedNodes.contains(nextNode)) {
-                    if(instance.getNodes().get(nextNode)==null || instance.getNodes().get(currentNode) == null){
-                        System.out.println("ooo");
-                    }
                     double distance = instance.getNodes().get(currentNode).getDistanceTo(instance.getNodes().get(nextNode));
                     if (distance < closestDistance) {
                         closestDistance = distance;
