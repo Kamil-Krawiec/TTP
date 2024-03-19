@@ -26,19 +26,30 @@ public abstract class Optimizer {
         this.algorithm = algorithm;
     }
 
+
+
     // Method to execute the optimization process
-    public abstract void optimize();
+    public void optimize(){}
+
 
     // Method to initialize first population
     public abstract void initialize();
 
-    protected TTPSolution mutate(TTPSolution solution) {
+    protected TTPSolution mutateSwap(TTPSolution solution) {
+        return null;
+    }
+    protected TTPSolution mutateInverse(TTPSolution solution) {
         return null;
     }
 
-    protected TTPSolution crossover(TTPSolution solution1, TTPSolution solution2) {
+
+    protected TTPSolution crossoverXO(TTPSolution solution1, TTPSolution solution2) {
         return null;
     }
+    protected TTPSolution crossoverCX(TTPSolution solution1, TTPSolution solution2) {
+        return null;
+    }
+
 
     protected TTPSolution select(List<TTPSolution> population) {
         return null;

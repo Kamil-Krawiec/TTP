@@ -7,14 +7,14 @@ import java.io.IOException;
 
 public class CSVUtil {
 
-    public static void saveSolutionToCSV(TTPSolution solution, String filePath, String algorithmName,String instanceName) throws IOException {
+    public static void saveSolutionToCSV(TTPSolution solution, String filePath, String algorithmName,String instanceName, String... args) throws IOException {
         File file = new File(filePath);
         boolean isNewFile = file.createNewFile(); // Attempts to create the file, returns true if the file did not exist and was successfully created
 
         try (FileWriter writer = new FileWriter(file, true)) { // Use 'file' instead of 'filePath' to utilize the File object
             if (isNewFile) {
                 // Write the header only if the file did not exist and was created
-                String header = "AlgorithmName,InstanceName,TotalProfit,TotalWeight,TotalTravelingTime,Fitness,TotalDistance,WeightOfItems,Route,Items\n";
+                String header = "AlgorithmName,InstanceName,TotalProfit,TotalWeight,TotalTravelingTime,Fitness,TotalDistance,WeightOfItems,SwapType,CrossoverType,Route,Items\n";
                 writer.append(header);
             }
 
@@ -23,7 +23,7 @@ public class CSVUtil {
             String itemsString = solution.getItems().toString().replaceAll("[\\[\\]\\s]", "").replaceAll(",", "->");
 
             // CSV Data
-            String data = String.format("%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s,%s\n",
+            String data = String.format("%s,%s,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%s,%s,%s,%s\n",
                     algorithmName,
                     instanceName,
                     solution.getTotalProfit(),
@@ -32,6 +32,8 @@ public class CSVUtil {
                     solution.getFitness(),
                     solution.getTotalDistance(),
                     solution.getWeightOfItems(),
+                    args.length>0 ? args[0] : "N/A",
+                    args.length>0 ? args[1] : "N/A",
                     routeString,
                     itemsString);
 

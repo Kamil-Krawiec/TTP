@@ -4,17 +4,25 @@ import TTP.Algorithms.EAlgorithm;
 import TTP.TTPInstance;
 import TTP.TTPSolution;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class RealOptimizer extends Optimizer {
+    protected boolean swapMutation = true;
+    protected boolean crossoverXO = true;
 
-
-    public RealOptimizer(EAlgorithm algorithm) {
+    public RealOptimizer(EAlgorithm algorithm, boolean swapMutation, boolean crossoverXO) {
         super(algorithm);
+        this.swapMutation = swapMutation;
+        this.crossoverXO = crossoverXO;
     }
 
+
+    //   ========================= SWAP MUTATION =========================
     @Override
-    protected TTPSolution mutate(TTPSolution solution) {
+    protected TTPSolution mutateSwap(TTPSolution solution) {
         int minKeyNode = algorithm.getInstance().getNodes().keySet().stream().findFirst().orElse(0);
 
 
@@ -47,7 +55,6 @@ public class RealOptimizer extends Optimizer {
             solution.updateTotalWeight(-instance.getItems().get(currentItemIndex).getWeight());
             solution.getItems().set(index, -1); // Remove the item
         } else {
-
             for (Integer itemIndex : availableItems) {
                 double itemWeight = instance.getItems().get(itemIndex).getWeight();
                 if (solution.getTotalWeight() + itemWeight <= algorithm.getInstance().getCapacityOfKnapsack()) {
@@ -58,10 +65,104 @@ public class RealOptimizer extends Optimizer {
             }
         }
     }
+//   ========================= SWAP MUTATION END =========================
 
-    //    XO1 crossover
+
+    //   ========================= INVERSE MUTATION =========================
     @Override
-    protected TTPSolution crossover(TTPSolution solution1, TTPSolution solution2) {
+    protected TTPSolution mutateInverse(TTPSolution solution) {
+        int minKeyNode = algorithm.getInstance().getNodes().keySet().stream().findFirst().orElse(0);
+
+
+        int firstIndex = random.nextInt(minKeyNode, solution.getRoute().size() - 1);
+        int secondIndex = random.nextInt(minKeyNode, solution.getRoute().size() - 1);
+
+        // Ensure crossoverPoint1 < crossoverPoint2
+        if (firstIndex > secondIndex) {
+            int temp = firstIndex;
+            firstIndex = secondIndex;
+            secondIndex = temp;
+        }
+
+        // Inverse mutation for route
+        List<Integer> subList = new ArrayList<>(solution.getRoute().subList(firstIndex, secondIndex + 1));
+        Collections.reverse(subList);
+        for (int i = 0; i < subList.size(); i++) {
+            solution.getRoute().set(firstIndex + i, subList.get(i));
+        }
+
+        List<Integer> itemsSubList = new ArrayList<>(solution.getItems().subList(firstIndex, secondIndex + 1));
+        Collections.reverse(itemsSubList);
+        for (int i = 0; i < itemsSubList.size(); i++) {
+            solution.getItems().set(firstIndex + i, itemsSubList.get(i));
+        }
+
+        if (getMUTATION_PROBABILITY() > random.nextFloat()) {
+            mutateItemsAtNode(solution, firstIndex);
+            mutateItemsAtNode(solution, secondIndex);
+        }
+
+        return solution;
+    }
+
+//   ========================= INVERSE MUTATION END =========================
+
+
+//   ========================= CX CROSSOVER =========================
+    @Override
+    protected TTPSolution crossoverCX(TTPSolution solution1, TTPSolution solution2) {
+        List<Integer> parent1Route = new ArrayList<>(solution1.getRoute());
+        List<Integer> parent2Route = new ArrayList<>(solution2.getRoute());
+        List<Integer> childRoute = new ArrayList<>(Collections.nCopies(parent1Route.size(), -1));
+
+        boolean[] visited = new boolean[parent1Route.size()];
+        int start = 0;
+        int next = 0;
+        boolean cycle = false;
+
+        while (!cycle) {
+            childRoute.set(start, parent1Route.get(start));
+            visited[start] = true;
+
+            // Find the cycle
+            next = parent2Route.indexOf(parent1Route.get(start));
+            while (next != start) {
+                childRoute.set(next, parent1Route.get(next));
+                visited[next] = true;
+                next = parent2Route.indexOf(parent1Route.get(next));
+            }
+
+            // Check if there's another cycle
+            cycle = true;
+            for (int i = 0; i < visited.length; i++) {
+                if (!visited[i]) {
+                    start = i;
+                    cycle = false;
+                    break;
+                }
+            }
+        }
+
+        // Fill in the gaps with cities from the second parent
+        for (int i = 0; i < childRoute.size(); i++) {
+            if (childRoute.get(i) == -1) {
+                childRoute.set(i, parent2Route.get(i));
+            }
+        }
+
+        TTPSolution offspring = new TTPSolution(childRoute, new ArrayList<>(Collections.nCopies(childRoute.size(), -1)));
+        handleItems(solution1, solution2, offspring);
+
+        return offspring;
+    }
+
+
+//   ========================= CX CROSSOVER END =========================
+
+
+//   ========================= XO1 CROSSOVER =========================
+    @Override
+    protected TTPSolution crossoverXO(TTPSolution solution1, TTPSolution solution2) {
         List<Integer> parent1Route = new ArrayList<>(solution1.getRoute());
         List<Integer> parent2Route = new ArrayList<>(solution2.getRoute());
         int routeSize = parent1Route.size();
@@ -135,6 +236,7 @@ public class RealOptimizer extends Optimizer {
         }
     }
 
+//   ========================= XO1 CROSSOVER END =========================
 
     @Override
     protected TTPSolution select(List<TTPSolution> population) {
@@ -166,7 +268,7 @@ public class RealOptimizer extends Optimizer {
                 TTPSolution offspring;
 
                 if (random.nextFloat(0, 1) < CROSSOVER_PROBABILITY) {
-                    offspring = crossover(parent1, parent2);
+                    offspring = crossoverXO ? crossoverXO(parent1, parent2) : crossoverCX(parent1, parent2);
                     offspring.setChanged(true);
                 } else {
                     offspring = new TTPSolution(parent1);
@@ -174,7 +276,7 @@ public class RealOptimizer extends Optimizer {
                 }
 
                 if (random.nextFloat(0, 1) < MUTATION_PROBABILITY) {
-                    offspring = mutate(offspring);
+                    offspring = swapMutation ? mutateSwap(offspring) : mutateInverse(offspring);
                     offspring.setChanged(true);
                 }
 
@@ -191,7 +293,6 @@ public class RealOptimizer extends Optimizer {
             bestSolution = bestSolution == null || population.get(0).getFitness() > bestSolution.getFitness() ?
                     population.get(0) : bestSolution;
         }
-//        newPopulation.stream().filter(TTPSolution::isChanged).filter(x-> x.getTotalWeight()>algorithm.instance.getCapacityOfKnapsack()).toList()
     }
 
     @Override
