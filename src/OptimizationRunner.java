@@ -31,13 +31,13 @@ public class OptimizationRunner {
         executeAndSaveOptimization(new RandomAlgorithm(ttpInstance), "Random", fileName);
         executeAndSaveOptimization(new ExtendedGreedyAlgo(ttpInstance), "Extended greedy", fileName);
         executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary OX SWAP",
-                fileName, "OX", "SWAP", "0", "0");
+                fileName, "OX", "SWAP", "1", "1");
         executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary CX INVERSE",
-                fileName, "CX", "INVERSE", "1", "1");
-        executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary CX INVERSE",
-                fileName, "OX", "INVERSE", "0", "1");
-        executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary CX INVERSE",
-                fileName, "CX", "SWAP", "1", "0");
+                fileName, "CX", "INVERSE", "0", "0");
+        executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary CX SWAP",
+                fileName, "CX", "SWAP", "0", "1");
+        executeAndSaveOptimization(new EvolutionaryAlgorithm(ttpInstance), "Evolutionary OX INVERSE",
+                fileName, "OX", "INVERSE", "1", "0");
         executeAndSaveOptimization(new TabuAlgorithm(ttpInstance), "Tabu", fileName);
     }
 
@@ -50,7 +50,7 @@ public class OptimizationRunner {
             realOptimizer.initialize();
             realOptimizer.evaluate();
             realOptimizer.optimize();
-            CSVUtil.saveFitnessesToCSV(realOptimizer.getBestSolutions(), realOptimizer.getWorstSolutions(),
+            CSVUtil.saveFitnessesToCSV(instanceName,realOptimizer.getBestSolutions(), realOptimizer.getWorstSolutions(),
                     realOptimizer.getAvgSolutions(), swap, cross, solutionDir + populationAnalysisFileName);
             TTPSolution bestSolution = realOptimizer.getBestSolution();
             CSVUtil.saveSolutionToCSV(bestSolution, solutionDir + algorithmAnalysisFileName,

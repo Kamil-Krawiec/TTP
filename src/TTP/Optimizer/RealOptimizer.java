@@ -11,8 +11,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class RealOptimizer extends Optimizer {
-    protected boolean swapMutation = true;
-    protected boolean crossoverXO = true;
+    protected boolean swapMutation ;
+    protected boolean crossoverXO;
 
     @Getter
     public List<Double> worstSolutions = new ArrayList<>();

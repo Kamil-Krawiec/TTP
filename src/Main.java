@@ -12,7 +12,10 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Throwable {
-        OptimizationRunner.main(args);
+        for(int i=0;i<11;i++){
+            System.out.println("Running iteration "+i);
+            OptimizationRunner.main(args);
+        }
     }
 
 
